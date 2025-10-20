@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rubric-to-Prompt Generator</title>
+</head>
+<body>
+    <div id="app-container">
+        <h1>Rubric-to-Prompt Generator</h1>
+        <p id="subtitle">Create AI-ready assessment prompts in seconds</p>
+        
+        <div id="what-to-expect" style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 25px; border-left: 4px solid #3498db;">
+            <strong>What to Expect:</strong>
+            <ul style="margin: 10px 0; padding-left: 20px; font-size: 14px;">
+                <li><strong>Works with free ChatGPT</strong> - No paid subscription required</li>
+                <li><strong>Single student:</strong> ~30-60 seconds per assessment in ChatGPT</li>
+                <li><strong>Batch mode:</strong> 2-4 minutes for 5-15 students (huge time saver!)</li>
+                <li><strong>You stay in control</strong> - Review and edit all AI feedback before sharing with students</li>
+            </ul>
+        </div>
+        
+        <div id="assignment-section">
+            <h3>1. Select Assignment Type:</h3>
+            <div id="assignment-buttons"></div>
+        </div>
+        
+        <div id="grade-section">
+            <h3>2. Select Grade Level:</h3>
+            <div id="grade-buttons"></div>
+        </div>
+        
+        <div id="mode-section">
+            <h3>3. Select Grading Mode:</h3>
+            <div id="mode-buttons"></div>
+            <div class="mode-note" style="display: none; color: #27ae60; font-size: 13px; font-style: italic; margin-top: 5px; padding: 10px; background: #e8f5e8; border-radius: 5px;">
+                <strong>💡 Batch Mode Selected:</strong> Your prompt will be optimized to assess multiple students at once. For best results, batch 5-15 students per submission. You'll paste all student work together with student IDs, and get back organized feedback for everyone in one response.
+            </div>
+        </div>
+        
+        <div id="criteria-section">
+            <h3>4. Select Assessment Criteria (choose 1 or more):</h3>
+            <div style="margin-bottom: 10px;">
+                <button id="select-all-criteria" style="padding: 8px 12px; background: #95a5a6; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 13px;">Select All Criteria</button>
+                <button id="clear-all-criteria" style="padding: 8px 12px; background: #95a5a6; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 13px; margin-left: 5px;">Clear All</button>
+            </div>
+            <div id="criteria-buttons"></div>
+        </div>
+        
+        <div id="scale-section">
+            <h3>5. Select Point Scale:</h3>
+            <div id="scale-buttons"></div>
+        </div>
+        
+        <div id="feedback-section">
+            <h3>6. Select Feedback Style:</h3>
+            <div id="feedback-buttons"></div>
+        </div>
+        
+        <button id="reset-btn">Reset All Selections</button>
+        
+        <div id="output-section" style="display: none;">
+            <h3>✓ Your Prompt is Ready!</h3>
+            <p style="font-size: 15px; color: #555; margin-bottom: 20px;">
+                Your customized assessment prompt has been generated. Click the button below to copy it, then paste it into ChatGPT.
+            </p>
+            
+            <button id="copy-btn">Copy Prompt to Clipboard</button>
+            
+            <div id="copy-success" style="display: none;">
+                ✓ Prompt copied to clipboard!
+            </div>
+            
+            <div id="ai-test-buttons" style="display: none;">
+                <a href="https://chatgpt.com" target="_blank" id="chatgpt-btn">Open ChatGPT</a>
+            </div>
+            
+            <div style="margin-top: 20px;">
+                <button id="show-prompt-btn" onclick="togglePrompt()" style="padding: 10px 15px; background: #95a5a6; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px;">
+                    ▶ Show Full Prompt (optional)
+                </button>
+            </div>
+            
+            <div id="prompt-container" style="display: none; margin-top: 15px;">
+                <div id="prompt-preview"></div>
+            </div>
+            
+            <div id="privacy-reminder" style="margin-top: 20px; padding: 15px; background: #fff3cd; border-left: 4px solid #ff9800; border-radius: 5px;">
+                <strong>⚠️ STUDENT PRIVACY REMINDER</strong>
+                <p style="margin: 10px 0 5px 0; font-weight: bold;">Before pasting student work into ChatGPT:</p>
+                <ul style="margin: 5px 0 5px 20px; padding: 0;">
+                    <li><strong>Remove student names</strong> - Replace with "Student A," student ID numbers, or initials</li>
+                    <li><strong>Check for personal information</strong> - Remove references to health conditions, family situations, or other sensitive details</li>
+                    <li><strong>Remember:</strong> Free AI tools may use uploaded content for training. Treat student work as you would any confidential document.</li>
+                </ul>
+            </div>
+            
+            <div id="instructions" style="margin-top: 15px; padding: 15px; background: #e3f2fd; border-left: 4px solid #2196f3; border-radius: 5px;">
+                <strong>How to use this prompt:</strong>
+                <ol style="margin: 10px 0; padding-left: 20px;" id="instruction-list">
+                    <li>Copy the prompt using the button above</li>
+                    <li>Click "Open ChatGPT" to launch ChatGPT in a new tab</li>
+                    <li>Paste the prompt into ChatGPT</li>
+                    <li><strong>De-identify the student work</strong> (remove names and sensitive info)</li>
+                    <li id="paste-instruction">Paste the de-identified student work below the prompt</li>
+                    <li>Review and edit the AI's feedback before sharing with students</li>
+                    <li id="reuse-instruction">Reuse the same prompt for all students in this assignment</li>
+                </ol>
+            </div>
+            
+            <div style="margin-top: 20px; text-align: center;">
+                <a href="#" id="feedback-btn" target="_blank">💬 Give Feedback</a>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        #app-container {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            line-height: 1.6;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        #subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+        
+        h3 {
+            color: #34495e;
+            margin: 25px 0 15px 0;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 5px;
+        }
+        
+        .button-container {
+            margin-bottom: 15px;
+        }
+        
+        .option-button {
+            padding: 12px 16px !important;
+            background: #ecf0f1 !important;
+            border: 2px solid #bdc3c7 !important;
+            border-radius: 5px !important;
+            cursor: pointer !important;
+            font-size: 14px !important;
+            text-align: center !important;
+            transition: all 0.3s !important;
+            display: inline-block !important;
+            margin: 5px !important;
+            min-width: 120px !important;
+        }
+        
+        .option-button:hover {
+            background: #d5dbdb !important;
+        }
+        
+        .option-button.selected {
+            background: #3498db !important;
+            color: white !important;
+            border-color: #2980b9 !important;
+        }
+        
+        .single-select .option-button {
+            flex: 1 1 calc(25% - 10px);
+            min-width: 120px;
+        }
+        
+        .multi-select .option-button {
+            flex: 1 1 calc(33% - 10px);
+            min-width: 150px;
+        }
+        
+        #output-section {
+            background: #e8f5e8;
+            border: 2px solid #27ae60;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+        
+        #output-section h3 {
+            color: #27ae60;
+            margin-top: 0;
+            border: none;
+        }
+        
+        #prompt-preview {
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        #copy-btn {
+            background: #27ae60 !important;
+            color: white !important;
+            border: none !important;
+            padding: 15px 30px !important;
+            border-radius: 5px !important;
+            cursor: pointer !important;
+            font-size: 18px !important;
+            font-weight: bold !important;
+            display: inline-block !important;
+            margin-top: 10px !important;
+        }
+        
+        #copy-btn:hover {
+            background: #229954 !important;
+        }
+        
+        #reset-btn {
+            background: #e74c3c !important;
+            color: white !important;
+            border: none !important;
+            padding: 10px 20px !important;
+            border-radius: 5px !important;
+            cursor: pointer !important;
+            font-size: 14px !important;
+            margin: 20px 0 !important;
+            display: inline-block !important;
+        }
+        
+        #reset-btn:hover {
+            background: #c0392b !important;
+        }
+        
+        #copy-success {
+            color: #27ae60;
+            font-weight: bold;
+            margin-top: 10px;
+            font-size: 16px;
+        }
+        
+        #ai-test-buttons {
+            margin-top: 15px;
+        }
+        
+        #ai-test-buttons a {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            text-decoration: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            margin: 5px 10px 5px 0;
+            font-weight: bold;
+        }
+        
+        #ai-test-buttons a:hover {
+            background: #2980b9;
+            text-decoration: none;
+            color: white;
+        }
+        
+        .criteria-note {
+            color: #7f8c8d;
+            font-size: 13px;
+            font-style: italic;
+            margin-top: -10px;
+            margin-bottom: 10px;
+        }
+        
+        #show-prompt-btn:hover {
+            background: #7f8c8d;
+        }
+        
+        #feedback-btn {
+            background: #9b59b6 !important;
+            color: white !important;
+            border: none !important;
+            padding: 10px 20px !important;
+            border-radius: 5px !important;
+            cursor: pointer !important;
+            font-size: 14px !important;
+            margin: 20px 0 !important;
+            display: inline-block !important;
+            text-decoration: none !important;
+        }
+        
+        #feedback-btn:hover {
+            background: #8e44ad !important;
+            text-decoration: none !important;
+        }
+    </style>
+
+    <script>
+        const appData = {
+            assignment: '',
+            grade: '',
+            mode: '',
+            criteria: [],
+            scale: '',
+            feedback: ''
+        };
+
+        const assignments = [
+            "Essay",
+            "Research Paper",
+            "Lab Report",
+            "Project Presentation",
+            "Creative Writing",
+            "Problem Set",
+            "Discussion Post",
+            "Reflection Journal",
+            "Book Report",
+            "Argument/Persuasive Essay"
+        ];
+
+        const grades = [
+            "Elementary (K-5)",
+            "Middle School (6-8)",
+            "High School (9-12)",
+            "College/University"
+        ];
+
+        const modes = [
+            "Single Student",
+            "Batch Mode (Multiple Students)"
+        ];
+
+        const criteria = [
+            "Thesis/Main Argument",
+            "Evidence & Support",
+            "Organization & Structure",
+            "Writing Mechanics",
+            "Critical Thinking",
+            "Creativity & Originality",
+            "Research Quality",
+            "Analysis & Interpretation",
+            "Clarity & Communication",
+            "Following Directions",
+            "Citations & Sources",
+            "Depth of Understanding"
+        ];
+
+        const scales = [
+            "4-Point Scale",
+            "100-Point Scale",
+            "Letter Grades (A-F)",
+            "Standards-Based (1-4)",
+            "Proficiency Levels"
+        ];
+
+        const feedbackStyles = [
+            "Encouraging & Growth-Focused",
+            "Direct & Constructive",
+            "Detailed & Comprehensive",
+            "Concise & Action-Oriented"
+        ];
+
+        function createButtons(containerId, items, category, multiSelect = false) {
+            const container = document.getElementById(containerId);
+            container.className = multiSelect ? 'button-container multi-select' : 'button-container single-select';
+            
+            items.forEach(item => {
+                const button = document.createElement('button');
+                button.className = 'option-button';
+                button.textContent = item;
+                button.onclick = () => selectOption(category, item, button, multiSelect);
+                container.appendChild(button);
+            });
+        }
+
+        function selectOption(category, value, buttonElement, multiSelect) {
+            if (multiSelect) {
+                // Handle multi-select for criteria
+                const index = appData.criteria.indexOf(value);
+                if (index > -1) {
+                    appData.criteria.splice(index, 1);
+                    buttonElement.classList.remove('selected');
+                } else {
+                    appData.criteria.push(value);
+                    buttonElement.classList.add('selected');
+                }
+            } else {
+                // Handle single-select
+                appData[category] = value;
+                buttonElement.parentElement.querySelectorAll('.option-button').forEach(btn => {
+                    btn.classList.remove('selected');
+                });
+                buttonElement.classList.add('selected');
+                
+                // Show batch mode note if batch mode is selected
+                if (category === 'mode') {
+                    const noteElement = document.querySelector('.mode-note');
+                    if (value === 'Batch Mode (Multiple Students)') {
+                        noteElement.style.display = 'block';
+                    } else {
+                        noteElement.style.display = 'none';
+                    }
+                }
+            }
+            
+            checkAndShowOutput();
+        }
+
+        function checkAndShowOutput() {
+            if (appData.assignment && 
+                appData.grade && 
+                appData.mode &&
+                appData.criteria.length >= 1 && 
+                appData.scale && 
+                appData.feedback) {
+                showOutput();
+            } else {
+                document.getElementById('output-section').style.display = 'none';
+            }
+        }
+
+        function showOutput() {
+            const prompt = generatePrompt();
+            document.getElementById('prompt-preview').textContent = prompt;
+            document.getElementById('output-section').style.display = 'block';
+            
+            // Reset prompt visibility
+            document.getElementById('prompt-container').style.display = 'none';
+            document.getElementById('show-prompt-btn').textContent = '▶ Show Full Prompt (optional)';
+            
+            // Update instructions based on mode
+            const isBatchMode = appData.mode === 'Batch Mode (Multiple Students)';
+            const pasteInstruction = document.getElementById('paste-instruction');
+            const reuseInstruction = document.getElementById('reuse-instruction');
+            
+            if (isBatchMode) {
+                pasteInstruction.innerHTML = '<strong>Format and paste ALL student work:</strong> Label each with "STUDENT ID: A001" (or similar) and separate clearly. See example in prompt.';
+                reuseInstruction.innerHTML = 'Get feedback for all students in one response! Copy scores to your gradebook.';
+            } else {
+                pasteInstruction.textContent = 'Paste the de-identified student work below the prompt';
+                reuseInstruction.textContent = 'Reuse the same prompt for all students in this assignment';
+            }
+        }
+
+        function togglePrompt() {
+            const container = document.getElementById('prompt-container');
+            const button = document.getElementById('show-prompt-btn');
+            
+            if (container.style.display === 'none') {
+                container.style.display = 'block';
+                button.textContent = '▼ Hide Full Prompt';
+            } else {
+                container.style.display = 'none';
+                button.textContent = '▶ Show Full Prompt (optional)';
+            }
+        }
+
+        function generatePrompt() {
+            const criteriaList = appData.criteria.map((c, i) => `${i + 1}. ${c}`).join('\n');
+            const isBatchMode = appData.mode === 'Batch Mode (Multiple Students)';
+            
+            let scaleDescription = '';
+            switch(appData.scale) {
+                case '4-Point Scale':
+                    scaleDescription = 'Score each criterion on a 4-point scale (1=Below Basic, 2=Basic, 3=Proficient, 4=Advanced)';
+                    break;
+                case '100-Point Scale':
+                    scaleDescription = 'Assign points for each criterion (distribute 100 points total across all criteria)';
+                    break;
+                case 'Letter Grades (A-F)':
+                    scaleDescription = 'Assign a letter grade (A, B, C, D, F) for each criterion';
+                    break;
+                case 'Standards-Based (1-4)':
+                    scaleDescription = 'Score each criterion: 1=Beginning, 2=Developing, 3=Proficient, 4=Advanced';
+                    break;
+                case 'Proficiency Levels':
+                    scaleDescription = 'Rate each criterion: Not Yet Proficient, Approaching Proficient, Proficient, or Highly Proficient';
+                    break;
+            }
+            
+            let feedbackTone = '';
+            switch(appData.feedback) {
+                case 'Encouraging & Growth-Focused':
+                    feedbackTone = 'Use an encouraging tone that emphasizes growth and improvement. Celebrate strengths and frame areas for improvement as opportunities for learning.';
+                    break;
+                case 'Direct & Constructive':
+                    feedbackTone = 'Be direct and specific about both strengths and weaknesses. Provide clear, actionable feedback without excessive praise or criticism.';
+                    break;
+                case 'Detailed & Comprehensive':
+                    feedbackTone = 'Provide thorough, detailed feedback with specific examples from the student work. Explain the reasoning behind scores.';
+                    break;
+                case 'Concise & Action-Oriented':
+                    feedbackTone = 'Keep feedback brief and focused on specific actions the student can take to improve. Prioritize the most important points.';
+                    break;
+            }
+
+            if (isBatchMode) {
+                return `**ROLE:** You are an experienced ${appData.grade} teacher evaluating ${appData.assignment} submissions from multiple students.
+
+**TASK:** Provide structured feedback and assessment for EACH student based on the rubric criteria below.
+
+**RUBRIC CRITERIA:**
+${criteriaList}
+
+**SCORING INSTRUCTIONS:**
+${scaleDescription}
+
+**FEEDBACK APPROACH:**
+${feedbackTone}
+
+**BATCH PROCESSING INSTRUCTIONS:**
+I will provide multiple student submissions below. Each submission will be clearly labeled with a STUDENT ID.
+You MUST evaluate each student separately and provide complete feedback for each one.
+
+**IMPORTANT:** For best results, process 5-15 students at a time. If you have more students to grade after this batch, I will submit another batch using this same prompt.
+
+**OUTPUT FORMAT:**
+For EACH student, provide your assessment in exactly this format:
+
+========================================
+STUDENT ID: [The student ID provided]
+========================================
+
+**SCORES BY CRITERION:**
+For each criterion, provide:
+- Score/rating
+- Brief justification (2-3 sentences)
+
+**OVERALL ASSESSMENT:**
+- Overall score or grade
+- Summary statement (1-2 sentences)
+
+**STRENGTHS:** 
+2-3 specific strengths with examples
+
+**AREAS FOR IMPROVEMENT:**
+2-3 specific, actionable suggestions
+
+**ENCOURAGING NOTE:**
+One positive, forward-looking statement
+
+========================================
+
+After completing one student, move to the next student and repeat this exact format.
+
+When you've completed all students in this batch, end with:
+"Batch complete. If you have more students to assess, paste the next batch below and I'll continue using the same rubric."
+
+---
+
+**STUDENT SUBMISSIONS:**
+[IMPORTANT: Remove student names before pasting. Label each submission with format "STUDENT ID: A001" or similar]
+
+[Paste all student work below, clearly separated with student IDs]`;
+            } else {
+                return `**ROLE:** You are an experienced ${appData.grade} teacher evaluating a ${appData.assignment}.
+
+**TASK:** Provide structured feedback and assessment based on the rubric criteria below.
+
+**RUBRIC CRITERIA:**
+${criteriaList}
+
+**SCORING INSTRUCTIONS:**
+${scaleDescription}
+
+**FEEDBACK APPROACH:**
+${feedbackTone}
+
+**CONTEXT:**
+The student's work will be provided below. Read it carefully and evaluate it against each criterion listed above.
+
+**OUTPUT REQUIREMENTS:**
+Provide your assessment in the following format:
+
+1. **SCORES BY CRITERION:**
+   For each criterion, provide:
+   - Score/rating
+   - Brief justification (2-3 sentences explaining the score)
+
+2. **OVERALL ASSESSMENT:**
+   - Overall score or grade
+   - Summary statement (1-2 sentences)
+
+3. **STRENGTHS:** 
+   List 2-3 specific strengths with examples from the work
+
+4. **AREAS FOR IMPROVEMENT:**
+   List 2-3 specific, actionable suggestions for improvement
+
+5. **ENCOURAGING NOTE:**
+   End with one positive, forward-looking statement
+
+---
+
+**STUDENT WORK:**
+[IMPORTANT: Remove student name and any personal information before pasting work below. Use "Student A" or a student ID number instead.]
+
+`;
+            }
+        }
+
+        function resetSelections() {
+            appData.assignment = '';
+            appData.grade = '';
+            appData.mode = '';
+            appData.criteria = [];
+            appData.scale = '';
+            appData.feedback = '';
+            
+            document.querySelectorAll('.option-button').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            
+            document.querySelector('.mode-note').style.display = 'none';
+            document.getElementById('copy-success').style.display = 'none';
+            document.getElementById('ai-test-buttons').style.display = 'none';
+            document.getElementById('output-section').style.display = 'none';
+        }
+
+        function copyToClipboard() {
+            const fullPrompt = generatePrompt();
+            navigator.clipboard.writeText(fullPrompt).then(() => {
+                document.getElementById('copy-success').style.display = 'block';
+                document.getElementById('ai-test-buttons').style.display = 'block';
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+            });
+        }
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            createButtons('assignment-buttons', assignments, 'assignment', false);
+            createButtons('grade-buttons', grades, 'grade', false);
+            createButtons('mode-buttons', modes, 'mode', false);
+            
+            const criteriaSection = document.getElementById('criteria-section');
+            const noteDiv = document.createElement('div');
+            noteDiv.className = 'criteria-note';
+            noteDiv.textContent = 'Select the criteria that matter for this assignment - from one specific skill to all criteria';
+            criteriaSection.appendChild(noteDiv);
+            
+            createButtons('criteria-buttons', criteria, 'criteria', true);
+            createButtons('scale-buttons', scales, 'scale', false);
+            createButtons('feedback-buttons', feedbackStyles, 'feedback', false);
+            
+            // Select All / Clear All functionality
+            document.getElementById('select-all-criteria').onclick = function() {
+                criteria.forEach(criterion => {
+                    if (!appData.criteria.includes(criterion)) {
+                        appData.criteria.push(criterion);
+                    }
+                });
+                document.querySelectorAll('#criteria-buttons .option-button').forEach(btn => {
+                    btn.classList.add('selected');
+                });
+                checkAndShowOutput();
+            };
+            
+            document.getElementById('clear-all-criteria').onclick = function() {
+                appData.criteria = [];
+                document.querySelectorAll('#criteria-buttons .option-button').forEach(btn => {
+                    btn.classList.remove('selected');
+                });
+                checkAndShowOutput();
+            };
+            
+            document.getElementById('copy-btn').onclick = copyToClipboard;
+            document.getElementById('reset-btn').onclick = resetSelections;
+            
+            // Feedback button - update this URL with your Google Form link
+            document.getElementById('feedback-btn').href = 'YOUR_GOOGLE_FORM_LINK_HERE';
+        });
+    </script>
+</body>
+</html>

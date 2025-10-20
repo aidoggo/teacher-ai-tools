@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Scenario Generator for Educators</title>
+</head>
+<body>
+    <div id="app-container">
+        <h1>AI Scenario Generator for Educators</h1>
+        <p id="subtitle">Create realistic parent communication scenarios to test AI tools</p>
+        
+        <div id="scenario-display">
+            We need to communicate to parents that <span id="situation-blank">[select situation]</span>, but we are afraid they will get <span id="emotion-blank">[select emotion]</span> and <span id="action-blank">[select action]</span>.
+        </div>
+        
+        <div id="situation-section">
+            <h3>1. Select the Situation to Communicate:</h3>
+            <div id="situation-buttons"></div>
+        </div>
+        
+        <div id="emotion-section">
+            <h3>2. Select the Feared Parental Emotion:</h3>
+            <div id="emotion-buttons"></div>
+        </div>
+        
+        <div id="action-section">
+            <h3>3. Select the Feared Parental Action:</h3>
+            <div id="action-buttons"></div>
+        </div>
+        
+        <button id="reset-btn">Reset All Selections</button>
+        
+        <div id="output-section" style="display: none;">
+            <h3>Complete Scenario for AI Testing:</h3>
+            <p id="complete-scenario"></p>
+            <button id="copy-btn">Copy to Clipboard</button>
+            <div id="copy-success" style="display: none;">
+                ✓ Prompt created and copied to clipboard!
+            </div>
+            <div id="ai-test-buttons" style="display: none;">
+                <a href="https://chatgpt.com" target="_blank" id="chatgpt-btn">Test in ChatGPT</a>
+                <a href="https://gemini.google.com" target="_blank" id="gemini-btn">Test in Gemini</a>
+                <a href="https://claude.ai" target="_blank" id="claude-btn">Test in Claude</a>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        #app-container {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            line-height: 1.6;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        #subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+        
+        #scenario-display {
+            background: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            font-size: 18px;
+            line-height: 2;
+        }
+        
+        .blank {
+            display: inline-block;
+            min-width: 120px;
+            padding: 5px 10px;
+            background: #3498db;
+            color: white;
+            border-radius: 20px;
+            text-align: center;
+            font-weight: bold;
+            margin: 0 5px;
+        }
+        
+        .blank.filled {
+            background: #27ae60;
+        }
+        
+        .section {
+            margin-bottom: 25px;
+        }
+        
+        h3 {
+            color: #34495e;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 5px;
+        }
+        
+        .button-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .option-button {
+            padding: 12px 16px;
+            background: #ecf0f1;
+            border: 2px solid #bdc3c7;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            text-align: left;
+            flex: 1 1 calc(50% - 5px);
+            min-width: 250px;
+        }
+        
+        .option-button:hover {
+            background: #d5dbdb;
+        }
+        
+        .option-button.selected {
+            background: #3498db;
+            color: white;
+            border-color: #2980b9;
+        }
+        
+        #output-section {
+            background: #e8f5e8;
+            border: 2px solid #27ae60;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+            font-size: 16px;
+            line-height: 1.8;
+        }
+        
+        #output-section h3 {
+            color: #27ae60;
+            margin-top: 0;
+        }
+        
+        #copy-btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 15px;
+        }
+        
+        #copy-btn:hover {
+            background: #229954;
+        }
+        
+        #reset-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 20px 10px 0 0;
+        }
+        
+        #reset-btn:hover {
+            background: #c0392b;
+        }
+        
+        #copy-success {
+            color: #27ae60;
+            font-weight: bold;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        
+        #ai-test-buttons {
+            margin-top: 15px;
+        }
+        
+        #ai-test-buttons a {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            text-decoration: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 14px;
+            margin: 5px 10px 5px 0;
+        }
+        
+        #ai-test-buttons a:hover {
+            background: #2980b9;
+            text-decoration: none;
+            color: white;
+        }
+    </style>
+
+    <script>
+        const appData = {
+            situation: '',
+            emotion: '',
+            action: ''
+        };
+
+        const situations = [
+            "their child has been suspended for fighting with another student",
+            "their child is failing three core subjects and may need to repeat the grade",
+            "school will be closed tomorrow due to a water main break",
+            "their child was caught vaping in the bathroom",
+            "the lunch program is switching to a new vendor with limited menu options",
+            "their child has been chronically absent and truancy intervention is required",
+            "several teachers are out sick and classes will be combined for the week",
+            "their child was involved in a bullying incident as the aggressor",
+            "the school's heating system failed and students will need to bring extra layers",
+            "their child has been placed in in-school suspension for disruptive behavior",
+            "budget cuts mean the art and music programs will be reduced",
+            "their child needs to be evaluated for special education services"
+        ];
+
+        const emotions = [
+            "angry", "defensive", "panicked", "disappointed", 
+            "frustrated", "overwhelmed", "confused", "worried"
+        ];
+
+        const actions = [
+            "demand an immediate meeting with the principal",
+            "post negative comments about the school on social media",
+            "contact the school board to file a complaint",
+            "threaten to transfer their child to another school",
+            "blame the teachers for not doing their job properly",
+            "organize other parents to oppose the decision",
+            "refuse to accept responsibility for their child's behavior",
+            "contact local news media about the situation",
+            "demand special accommodations that aren't feasible",
+            "withhold tuition payment until the issue is resolved"
+        ];
+
+        function createButtons(containerId, items, category) {
+            const container = document.getElementById(containerId);
+            container.className = 'button-container';
+            items.forEach(item => {
+                const button = document.createElement('button');
+                button.className = 'option-button';
+                button.textContent = item;
+                button.onclick = () => selectOption(category, item, button);
+                container.appendChild(button);
+            });
+        }
+
+        function selectOption(category, value, buttonElement) {
+            appData[category] = value;
+            
+            // Remove selected class from all buttons in this category
+            buttonElement.parentElement.querySelectorAll('.option-button').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked button
+            buttonElement.classList.add('selected');
+            
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            const situationBlank = document.getElementById('situation-blank');
+            const emotionBlank = document.getElementById('emotion-blank');
+            const actionBlank = document.getElementById('action-blank');
+            
+            situationBlank.textContent = appData.situation || '[select situation]';
+            emotionBlank.textContent = appData.emotion || '[select emotion]';
+            actionBlank.textContent = appData.action || '[select action]';
+            
+            situationBlank.className = appData.situation ? 'blank filled' : 'blank';
+            emotionBlank.className = appData.emotion ? 'blank filled' : 'blank';
+            actionBlank.className = appData.action ? 'blank filled' : 'blank';
+            
+            if (appData.situation && appData.emotion && appData.action) {
+                showOutput();
+            } else {
+                document.getElementById('output-section').style.display = 'none';
+            }
+        }
+
+        function showOutput() {
+            const scenario = `We need to communicate to parents that ${appData.situation}, but we are afraid they will get ${appData.emotion} and ${appData.action}.`;
+            document.getElementById('complete-scenario').textContent = scenario;
+            document.getElementById('output-section').style.display = 'block';
+        }
+
+        function createFullPrompt() {
+            const scenario = `We need to communicate to parents that ${appData.situation}, but we are afraid they will get ${appData.emotion} and ${appData.action}.`;
+            
+            return `**ROLE:** You are an expert educational communication consultant specializing in sensitive parent communications for private schools.
+
+**TASK:** Draft a professional, empathetic communication to parents about a challenging situation.
+
+**CONTEXT:** 
+${scenario}
+
+The communication needs to:
+- Be clear and honest about the situation
+- Show empathy and understanding for parent concerns
+- Maintain a professional and supportive tone
+- Provide specific next steps or solutions where appropriate
+- Preserve the parent-school relationship
+- Address potential parent concerns proactively
+
+**OUTPUT REQUIREMENTS:**
+1. Provide a subject line for the communication
+2. Write the full communication (email, letter, or message)
+3. Include a brief explanation of the communication strategy used
+4. Suggest potential follow-up actions
+
+Please ensure the tone is appropriate for a private school setting where maintaining positive relationships with tuition-paying families is crucial.`;
+        }
+
+        function copyToClipboard() {
+            const fullPrompt = createFullPrompt();
+            navigator.clipboard.writeText(fullPrompt).then(() => {
+                document.getElementById('copy-success').style.display = 'block';
+                document.getElementById('ai-test-buttons').style.display = 'block';
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+            });
+        }
+
+        function resetSelections() {
+            appData.situation = '';
+            appData.emotion = '';
+            appData.action = '';
+            
+            document.querySelectorAll('.option-button').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            
+            document.getElementById('copy-success').style.display = 'none';
+            document.getElementById('ai-test-buttons').style.display = 'none';
+            
+            updateDisplay();
+        }
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            createButtons('situation-buttons', situations, 'situation');
+            createButtons('emotion-buttons', emotions, 'emotion');
+            createButtons('action-buttons', actions, 'action');
+            
+            document.getElementById('copy-btn').onclick = copyToClipboard;
+            document.getElementById('reset-btn').onclick = resetSelections;
+            
+            updateDisplay();
+        });
+    </script>
+</body>
+</html>
