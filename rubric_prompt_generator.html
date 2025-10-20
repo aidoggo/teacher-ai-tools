@@ -174,14 +174,17 @@
             border-color: #2980b9 !important;
         }
         
-        .single-select .option-button {
-            flex: 1 1 calc(25% - 10px);
-            min-width: 120px;
-        }
-        
-        .multi-select .option-button {
-            flex: 1 1 calc(33% - 10px);
-            min-width: 150px;
+        #select-all-criteria,
+        #clear-all-criteria {
+            padding: 8px 12px !important;
+            background: #95a5a6 !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 5px !important;
+            cursor: pointer !important;
+            font-size: 13px !important;
+            margin: 0 5px 10px 0 !important;
+            display: inline-block !important;
         }
         
         #output-section {
@@ -371,12 +374,13 @@
 
         function createButtons(containerId, items, category, multiSelect = false) {
             const container = document.getElementById(containerId);
-            container.className = multiSelect ? 'button-container multi-select' : 'button-container single-select';
+            container.className = 'button-container';
             
             items.forEach(item => {
                 const button = document.createElement('button');
                 button.className = 'option-button';
                 button.textContent = item;
+                button.type = 'button';
                 button.onclick = () => selectOption(category, item, button, multiSelect);
                 container.appendChild(button);
             });
@@ -628,12 +632,53 @@ Provide your assessment in the following format:
 
         function copyToClipboard() {
             const fullPrompt = generatePrompt();
-            navigator.clipboard.writeText(fullPrompt).then(() => {
-                document.getElementById('copy-success').style.display = 'block';
-                document.getElementById('ai-test-buttons').style.display = 'block';
-            }).catch(err => {
-                console.error('Failed to copy text: ', err);
-            });
+            
+            // Try modern clipboard API first
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(fullPrompt).then(() => {
+                    document.getElementById('copy-success').style.display = 'block';
+                    document.getElementById('ai-test-buttons').style.display = 'block';
+                }).catch(err => {
+                    console.error('Clipboard API failed:', err);
+                    fallbackCopy(fullPrompt);
+                });
+            } else {
+                // Fallback for browsers without clipboard API
+                fallbackCopy(fullPrompt);
+            }
+        }
+        
+        function fallbackCopy(text) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.top = '0';
+            textArea.style.left = '0';
+            textArea.style.width = '2em';
+            textArea.style.height = '2em';
+            textArea.style.padding = '0';
+            textArea.style.border = 'none';
+            textArea.style.outline = 'none';
+            textArea.style.boxShadow = 'none';
+            textArea.style.background = 'transparent';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    document.getElementById('copy-success').style.display = 'block';
+                    document.getElementById('ai-test-buttons').style.display = 'block';
+                } else {
+                    alert('Copy failed. Please manually select and copy the prompt from the "Show Full Prompt" section.');
+                }
+            } catch (err) {
+                console.error('Fallback copy failed:', err);
+                alert('Copy failed. Please manually select and copy the prompt from the "Show Full Prompt" section.');
+            }
+            
+            document.body.removeChild(textArea);
         }
 
         // Initialize the app
